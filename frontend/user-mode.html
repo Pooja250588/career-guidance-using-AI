@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Compass - Select Mode</title>
+    <!-- DaisyUI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .glowing-bg {
+        background: radial-gradient(circle at 80% 20%, #20134d 0%, #0d0620 70%);
+      }
+      .blob {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.3;
+        animation: float 10s infinite alternate;
+      }
+      @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(-30px, 40px) scale(1.15); }
+      }
+    </style>
+</head>
+<body class="glowing-bg min-h-screen flex flex-col justify-between text-white relative overflow-x-hidden">
+    <!-- Glowing background blobs -->
+    <div class="blob bg-purple-600 top-20 right-10"></div>
+    <div class="blob bg-indigo-900 bottom-10 left-10" style="animation-delay: 2s;"></div>
+
+    <nav class="relative z-10 w-full px-6 py-4 flex items-center justify-between bg-black/25 backdrop-blur-md border-b border-white/5">
+      <div class="nav__logo">
+        <a href="/" class="logo text-2xl font-bold flex items-center gap-2">
+          Career<span class="text-[#fa6021]">C🧭mpass</span>
+        </a>
+      </div>
+      <ul class="flex items-center gap-6">
+        <li><a href="/" class="hover:text-[#fa6021] transition-all">Home</a></li>
+        <li><button class="btn btn-sm btn-ghost hover:bg-[#6a38c2] hover:text-white" onclick="window.location.href='/chatbot.html'">ChatBOT</button></li>
+      </ul>
+    </nav>
+
+    <div class="flex-grow flex justify-center items-center py-12 relative z-10 px-4">
+        <div class="card w-full max-w-md glass-card rounded-2xl">
+            <div class="card-body p-8 sm:p-10 text-center">
+                <div class="flex justify-center mb-4">
+                  <div class="w-14 h-14 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                    <i class="ri-user-settings-line text-2xl text-indigo-400"></i>
+                  </div>
+                </div>
+                <h2 id="greeting" class="text-2xl font-bold mb-2">Welcome!</h2>
+                <p class="text-slate-400 text-sm mb-8">Please choose your current profile type to help us customize your assessment process.</p>
+                
+                <div class="flex flex-col gap-4 w-full">
+                    <button onclick="setUserMode('Student')" class="btn btn-outline border-white/20 text-white hover:bg-gradient-to-r hover:from-[#6a38c2] hover:to-[#5727ac] hover:border-transparent py-4 h-auto font-semibold rounded-xl flex items-center justify-between px-6 transition-all group">
+                        <span class="flex items-center gap-3">
+                            <i class="ri-graduation-cap-line text-xl group-hover:scale-110 transition-transform"></i>
+                            Student
+                        </span>
+                        <i class="ri-arrow-right-s-line text-slate-400 group-hover:text-white"></i>
+                    </button>
+                    
+                    <button onclick="setUserMode('Working Professional')" class="btn btn-outline border-white/20 text-white hover:bg-gradient-to-r hover:from-[#fa6021] hover:to-[#df4d12] hover:border-transparent py-4 h-auto font-semibold rounded-xl flex items-center justify-between px-6 transition-all group">
+                        <span class="flex items-center gap-3">
+                            <i class="ri-briefcase-line text-xl group-hover:scale-110 transition-transform"></i>
+                            Working Professional
+                        </span>
+                        <i class="ri-arrow-right-s-line text-slate-400 group-hover:text-white"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 hidden">
+      <div class="flex flex-col items-center gap-4">
+        <span class="loading loading-spinner loading-lg text-[#fa6021]"></span>
+        <p class="text-white font-semibold text-sm">Saving profile mode...</p>
+      </div>
+    </div>
+
+    <footer class="footer bg-black/35 backdrop-blur-md text-slate-400 border-t border-white/5 p-6 relative z-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <aside class="flex items-center gap-2">
+        <a href="#" class="logo text-lg font-bold">Career<span class="text-[#fa6021]">C🧭mpass</span></a>
+        <p class="text-xs">| Designed & Developed by Pooja Wanjare</p>
+      </aside>
+    </footer>
+
+    <script>
+        // Set dynamic greeting
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = sessionStorage.getItem('username') || 'Explorer';
+            document.getElementById('greeting').innerText = `Welcome, ${username}!`;
+        });
+
+        function setUserMode(mode) {
+            const loader = document.getElementById('loader');
+            loader.classList.remove('hidden'); // Show loader
+            
+            const sessionId = sessionStorage.getItem('session_id') || 'default';
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `The user is a ${mode}. Just store this, and Do Not Give any Response Now.`,
+                    context: "",
+                    is_context_setting: true,
+                    chat_mode: false,
+                    session_id: sessionId
+                })
+            }).then(() => {
+                loader.classList.add('hidden'); // Hide loader
+                sessionStorage.setItem('user_mode', mode);
+                
+                // Redirect properly based on selected mode
+                if (mode === 'Student') {
+                    window.location.href = 'student-page.html';
+                } else {
+                    window.location.href = 'working-professional-page.html';
+                }
+            }).catch(error => {
+                console.error('Error setting user mode:', error);
+                alert('Error setting user mode. Please try again.');
+                loader.classList.add('hidden'); // Hide loader
+            });
+        }
+    </script>
+</body>
+</html>

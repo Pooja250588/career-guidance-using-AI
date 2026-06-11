@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Compass - Student Profile</title>
+    <!-- DaisyUI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .glowing-bg {
+        background: radial-gradient(circle at 10% 80%, #150a30 0%, #060212 70%);
+      }
+      .blob {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.3;
+        animation: float 14s infinite alternate;
+      }
+      @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(40px, -40px) scale(1.2); }
+      }
+    </style>
+</head>
+<body class="glowing-bg min-h-screen flex flex-col justify-between text-white relative overflow-x-hidden">
+    <!-- Glowing background blobs -->
+    <div class="blob bg-indigo-900 top-10 left-10"></div>
+    <div class="blob bg-purple-900 bottom-10 right-10" style="animation-delay: 2.5s;"></div>
+
+    <nav class="relative z-10 w-full px-6 py-4 flex items-center justify-between bg-black/25 backdrop-blur-md border-b border-white/5">
+      <div class="nav__logo">
+        <a href="/" class="logo text-2xl font-bold flex items-center gap-2">
+          Career<span class="text-[#fa6021]">C🧭mpass</span>
+        </a>
+      </div>
+      <ul class="flex items-center gap-6">
+        <li><a href="/" class="hover:text-[#fa6021] transition-all">Home</a></li>
+        <li><button class="btn btn-sm btn-ghost hover:bg-[#6a38c2] hover:text-white" onclick="window.location.href='/chatbot.html'">ChatBOT</button></li>
+      </ul>
+    </nav>
+
+    <div class="flex-grow flex justify-center items-center py-12 relative z-10 px-4">
+        <div class="card w-full max-w-lg glass-card rounded-2xl">
+            <div class="card-body p-6 sm:p-10">
+                <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
+                    <div>
+                        <h2 id="studentGreeting" class="text-2xl font-bold text-white">Student Dashboard</h2>
+                        <p class="text-xs text-slate-400">Add certificates or projects to customize your career match.</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
+                        <i class="ri-graduation-cap-line text-lg text-purple-400"></i>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="label-text text-slate-300 font-medium block mb-2">Academic & Extracurricular Certificates</label>
+                        <button onclick="showUploadModal()" class="btn btn-outline border-dashed border-white/20 text-[#fa6021] hover:bg-[#fa6021]/10 hover:border-[#fa6021] w-full py-6 h-auto flex flex-col items-center justify-center gap-2 rounded-xl transition-all">
+                            <i class="ri-add-circle-line text-2xl"></i>
+                            <span>Upload Certificate (PDF / Image)</span>
+                        </button>
+                    </div>
+
+                    <!-- Scrollable Certificates List -->
+                    <div id="certificatesContainer" class="max-h-60 overflow-y-auto space-y-3 pr-2 scrollbar-thin"></div>
+
+                    <div class="flex gap-4 pt-4 border-t border-white/10">
+                        <button onclick="window.location.href = 'more-details.html';" class="btn btn-ghost border border-white/10 hover:bg-white/5 flex-1 rounded-xl">
+                            Skip
+                        </button>
+                        <button onclick="sendToGpt()" class="btn btn-primary bg-gradient-to-r from-[#6a38c2] to-[#fa6021] border-none flex-1 text-white font-bold rounded-xl shadow-lg transition-all">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for uploading certificate -->
+    <div id="uploadModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 hidden px-4">
+        <div class="glass-card p-6 sm:p-8 rounded-2xl w-full max-w-md transform scale-100 transition-all border border-white/10 text-white">
+            <h3 class="text-xl font-bold mb-2 flex items-center gap-2 text-white">
+                <i class="ri-upload-cloud-2-line text-purple-400"></i> Upload Document
+            </h3>
+            <p class="text-slate-400 text-xs mb-6">Enter certificate details and choose a file.</p>
+            
+            <div class="form-control w-full mb-4">
+                <label class="label"><span class="label-text text-slate-300 font-medium">Title / Name</span></label>
+                <input type="text" id="modalCertificateTitle" placeholder="e.g. Python Programming Certificate" class="input input-bordered w-full bg-black/30 border-white/10 focus:border-[#6a38c2] focus:ring-1 focus:ring-[#6a38c2] rounded-lg" />
+            </div>
+
+            <div class="form-control w-full mb-6">
+                <label class="label"><span class="label-text text-slate-300 font-medium">Select File</span></label>
+                <input type="file" id="modalCertificateFile" class="file-input file-input-bordered w-full bg-black/30 border-white/10 text-slate-300 focus:border-[#6a38c2] rounded-lg" accept="image/*,application/pdf" />
+            </div>
+            
+            <div class="mb-6 relative hidden" id="previewContainer">
+                <label class="label-text text-slate-300 font-medium block mb-1">Preview</label>
+                <img id="imagePreview" src="#" alt="Certificate Preview" class="w-full h-32 object-cover rounded-lg border border-white/10" />
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeUploadModal()" class="btn btn-ghost border border-white/10 hover:bg-white/5 flex-1 rounded-lg">Cancel</button>
+                <button id="uploadButton" onclick="uploadCertificate()" class="btn btn-primary bg-purple-600 hover:bg-purple-700 border-none text-white font-bold flex-1 rounded-lg">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spinner Loader -->
+    <div id="loader" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 hidden">
+      <div class="flex flex-col items-center gap-4">
+        <span class="loading loading-spinner loading-lg text-[#fa6021]"></span>
+        <p class="text-white font-semibold text-sm">Processing file & extracting details...</p>
+      </div>
+    </div>
+
+    <footer class="footer bg-black/35 backdrop-blur-md text-slate-400 border-t border-white/5 p-6 relative z-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <aside class="flex items-center gap-2">
+        <a href="#" class="logo text-lg font-bold">Career<span class="text-[#fa6021]">C🧭mpass</span></a>
+        <p class="text-xs">| Designed & Developed by Pooja Wanjare</p>
+      </aside>
+    </footer>
+
+    <script>
+        let certificates = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = sessionStorage.getItem('username') || 'Student';
+            document.getElementById('studentGreeting').innerText = `${username}'s Console`;
+            displayCertificates();
+        });
+
+        function showUploadModal() {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+            document.getElementById('modalCertificateTitle').value = '';
+            document.getElementById('modalCertificateFile').value = '';
+            document.getElementById('imagePreview').src = '#';
+            document.getElementById('previewContainer').classList.add('hidden');
+        }
+
+        document.getElementById('modalCertificateFile').onchange = evt => {
+            const [file] = evt.target.files;
+            if (file && file.type.startsWith('image/')) {
+                const imagePreview = document.getElementById('imagePreview');
+                imagePreview.src = URL.createObjectURL(file);
+                document.getElementById('previewContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('previewContainer').classList.add('hidden');
+            }
+        };
+
+        async function uploadCertificate() {
+            const certificateTitle = document.getElementById('modalCertificateTitle').value.trim();
+            const certificateFile = document.getElementById('modalCertificateFile').files[0];
+
+            if (!certificateTitle) {
+                alert('Please enter a certificate title.');
+                return;
+            }
+
+            if (!certificateFile) {
+                alert('Please select a certificate file.');
+                return;
+            }
+
+            const uploadButton = document.getElementById('uploadButton');
+            uploadButton.innerHTML = '<span class="loading loading-spinner loading-xs mr-1"></span> Uploading...';
+            uploadButton.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', certificateFile);
+
+            try {
+                // Use relative URL for dynamic host compatibilities
+                const response = await fetch('/extract-text/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to parse document");
+                }
+
+                if (data.extracted_text !== undefined) {
+                    const extractedText = data.extracted_text;
+                    const imageUrl = certificateFile.type.startsWith('image/') ? URL.createObjectURL(certificateFile) : '';
+
+                    // Load current certificates list
+                    const storedCerts = JSON.parse(sessionStorage.getItem('certificates') || '[]');
+                    storedCerts.push({
+                        title: certificateTitle,
+                        image: imageUrl,
+                        text: extractedText,
+                        filename: certificateFile.name
+                    });
+                    sessionStorage.setItem('certificates', JSON.stringify(storedCerts));
+
+                    displayCertificates();
+                }
+
+                uploadButton.innerHTML = 'Upload';
+                uploadButton.disabled = false;
+                closeUploadModal();
+            } catch (error) {
+                console.error('Error uploading certificate:', error);
+                alert('Error uploading certificate: ' + error.message);
+
+                uploadButton.innerHTML = 'Upload';
+                uploadButton.disabled = false;
+            }
+        }
+
+        function displayCertificates() {
+            const certList = JSON.parse(sessionStorage.getItem('certificates') || '[]');
+            const container = document.getElementById('certificatesContainer');
+            container.innerHTML = '';
+
+            if (certList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-slate-500 border border-white/5 rounded-xl bg-black/20">
+                        <i class="ri-file-text-line text-xl mb-1 block"></i>
+                        <p class="text-xs">No certificates uploaded yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            certList.forEach((cert, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white/5 border border-white/10 rounded-xl p-4 flex gap-4 items-center justify-between hover:bg-white/10 transition-all';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-[#6a38c2]/20 flex items-center justify-center border border-[#6a38c2]/30">
+                            <i class="ri-file-award-line text-lg text-purple-400"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h4 class="font-semibold text-sm truncate text-white">${cert.title}</h4>
+                            <p class="text-slate-400 text-xs truncate max-w-[200px]">File: ${cert.filename}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeCertificate(${idx})" class="btn btn-circle btn-xs btn-ghost hover:bg-red-500/20 hover:text-red-400">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function removeCertificate(index) {
+            const certList = JSON.parse(sessionStorage.getItem('certificates') || '[]');
+            certList.splice(index, 1);
+            sessionStorage.setItem('certificates', JSON.stringify(certList));
+            displayCertificates();
+        }
+
+        function sendToGpt() {
+            const certList = JSON.parse(sessionStorage.getItem('certificates') || '[]');
+            const loader = document.getElementById('loader');
+            loader.classList.remove('hidden');
+
+            const sessionId = sessionStorage.getItem('session_id') || 'default';
+
+            // Summarize all certificates
+            let messageBody = "The user has uploaded certificates.";
+            if (certList.length > 0) {
+                const summary = certList.map((c, i) => `Certificate ${i+1}: ${c.title}\nText Extracted: ${c.text}`).join('\n\n');
+                messageBody = `These are certificates of the Student:\n\n${summary}`;
+            }
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: messageBody,
+                    context: "You are required to store these academic or course credentials as user context to analyze strengths and suggest career options in future requests.",
+                    is_context_setting: true,
+                    chat_mode: false,
+                    session_id: sessionId
+                })
+            })
+            .then(response => response.json())
+            .then(() => {
+                loader.classList.add('hidden');
+                window.location.href = 'more-details.html';
+            })
+            .catch(error => {
+                console.error('Error sending certificate to GPT:', error);
+                loader.classList.add('hidden');
+                alert('Error syncing data with career counselor. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Career Compass AI - Begin Your Journey</title>
+    <!-- DaisyUI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .glowing-bg {
+        background: radial-gradient(circle at 20% 30%, #3b1c78 0%, #110729 70%);
+      }
+      .blob {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.45;
+        animation: float 12s infinite alternate;
+      }
+      @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 30px) scale(1.2); }
+      }
+    </style>
+  </head>
+  <body class="glowing-bg min-h-screen flex flex-col justify-between text-white relative overflow-x-hidden">
+    <!-- Glowing background blobs -->
+    <div class="blob bg-purple-600 top-10 -left-20"></div>
+    <div class="blob bg-indigo-600 bottom-10 -right-20" style="animation-delay: 3s;"></div>
+
+    <nav class="relative z-10 w-full px-6 py-4 flex items-center justify-between bg-black/25 backdrop-blur-md border-b border-white/5">
+      <div class="nav__logo">
+        <a href="/" class="logo text-2xl font-bold flex items-center gap-2">
+          Career<span class="text-[#fa6021]">C🧭mpass</span>
+        </a>
+      </div>
+      <ul class="flex items-center gap-6">
+        <li><a href="/" class="hover:text-[#fa6021] transition-all">Home</a></li>
+        <li><button class="btn btn-sm btn-ghost hover:bg-[#6a38c2] hover:text-white" onclick="window.location.href='/chatbot.html'">ChatBOT</button></li>
+      </ul>
+    </nav>
+
+    <div class="flex-grow flex justify-center items-center py-12 relative z-10 px-4">
+      <div class="card w-full max-w-md glass-card rounded-2xl transform transition-all duration-300 hover:scale-[1.01]">
+        <div class="card-body p-8 sm:p-10">
+          <div class="flex justify-center mb-4">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#6a38c2] to-[#fa6021] flex items-center justify-center shadow-lg">
+              <i class="ri-compass-3-line text-3xl text-white"></i>
+            </div>
+          </div>
+          <h2 class="card-title text-3xl font-extrabold text-center justify-center bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent pb-2 mb-2">
+            Career Compass AI
+          </h2>
+          <p class="text-slate-400 text-center text-sm mb-6">
+            Discover your path with customized, AI-driven guidance. To begin, please enter your name.
+          </p>
+          
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text text-slate-300 font-medium">Your Name</span>
+            </label>
+            <div class="relative w-full">
+              <i class="ri-user-3-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+              <input
+                type="text"
+                id="username"
+                placeholder="Pooja Wanjare"
+                class="input input-bordered w-full pl-11 bg-black/30 border-white/10 text-white focus:border-[#6a38c2] focus:ring-1 focus:ring-[#6a38c2] placeholder:text-slate-600 rounded-lg transition-all"
+              />
+            </div>
+          </div>
+
+          <div class="card-actions mt-8">
+            <button onclick="startSession()" class="btn btn-primary w-full border-none bg-gradient-to-r from-[#6a38c2] to-[#fa6021] hover:brightness-110 text-white font-bold rounded-lg shadow-lg shadow-purple-900/30 transition-all flex items-center gap-2">
+              Start Journey <i class="ri-arrow-right-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spinner Modal -->
+    <div id="spinnerModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 hidden">
+      <div class="flex flex-col items-center gap-4">
+        <span class="loading loading-spinner loading-lg text-[#fa6021]"></span>
+        <p class="text-white font-semibold text-sm">Initializing your career console...</p>
+      </div>
+    </div>
+
+    <footer class="footer bg-black/35 backdrop-blur-md text-slate-400 border-t border-white/5 p-6 relative z-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <aside class="flex items-center gap-2">
+        <a href="#" class="logo text-lg font-bold">Career<span class="text-[#fa6021]">C🧭mpass</span></a>
+        <p class="text-xs">| Designed & Developed by Pooja Wanjare</p>
+      </aside>
+      <nav class="flex gap-4 text-xs">
+        <a href="#" class="hover:text-white transition-all">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition-all">Terms of Use</a>
+      </nav>
+    </footer>
+
+    <script>
+      function startSession() {
+        const username = document.getElementById("username").value.trim();
+        if (username) {
+          document.getElementById('spinnerModal').classList.remove('hidden');
+          
+          // Generate unique session ID
+          const sessionId = 'session_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+          
+          // Store locally
+          sessionStorage.setItem('session_id', sessionId);
+          sessionStorage.setItem('username', username);
+          sessionStorage.removeItem('certificates'); // clear past session data
+
+          fetch("/api/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: `You are a career counselor. You are now about to conduct a career counseling session for a student or professional named ${username}. Please address them by their name during the session. Store this information for reference, but do not provide any response at this time`,
+              context: "",
+              is_context_setting: true,
+              chat_mode: false,
+              session_id: sessionId
+            }),
+          }).then(() => {
+            document.getElementById('spinnerModal').classList.add('hidden');
+            window.location.href = 'user-mode.html';
+          }).catch((err) => {
+            console.error(err);
+            document.getElementById('spinnerModal').classList.add('hidden');
+            alert('An error occurred. Please try again.');
+          });
+        } else {
+          alert("Please enter your name.");
+        }
+      }
+    </script>
+  </body>
+</html>

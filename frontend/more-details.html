@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Compass - Share Details</title>
+    <!-- DaisyUI and Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .glowing-bg {
+        background: radial-gradient(circle at 50% 50%, #150935 0%, #050211 75%);
+      }
+      .blob {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.3;
+        animation: float 12s infinite alternate;
+      }
+      @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(30px, 30px) scale(1.2); }
+      }
+    </style>
+</head>
+<body class="glowing-bg min-h-screen flex flex-col justify-between text-white relative overflow-x-hidden">
+    <!-- Glowing background blobs -->
+    <div class="blob bg-indigo-900 top-20 left-20"></div>
+    <div class="blob bg-purple-900 bottom-20 right-20" style="animation-delay: 2s;"></div>
+
+    <nav class="relative z-10 w-full px-6 py-4 flex items-center justify-between bg-black/25 backdrop-blur-md border-b border-white/5">
+      <div class="nav__logo">
+        <a href="/" class="logo text-2xl font-bold flex items-center gap-2">
+          Career<span class="text-[#fa6021]">C🧭mpass</span>
+        </a>
+      </div>
+      <ul class="flex items-center gap-6">
+        <li><a href="/" class="hover:text-[#fa6021] transition-all">Home</a></li>
+        <li><button class="btn btn-sm btn-ghost hover:bg-[#6a38c2] hover:text-white" onclick="window.location.href='/chatbot.html'">ChatBOT</button></li>
+      </ul>
+    </nav>
+
+    <div class="flex-grow flex justify-center items-center py-12 relative z-10 px-4">
+        <div class="card w-full max-w-lg glass-card rounded-2xl">
+            <div class="card-body p-8 sm:p-10">
+                <div class="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
+                    <div>
+                        <h2 id="greeting" class="text-2xl font-bold text-white">Share Your Aspirations</h2>
+                        <p class="text-xs text-slate-400">Tell us about your interests, hobbies, or specific dream jobs.</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                        <i class="ri-edit-2-line text-lg text-indigo-400"></i>
+                    </div>
+                </div>
+
+                <div class="form-control w-full mb-6">
+                    <label class="label"><span class="label-text text-slate-300 font-medium">Additional Details (Optional)</span></label>
+                    <textarea 
+                        id="additionalInfo" 
+                        rows="5"
+                        class="textarea textarea-bordered w-full bg-black/30 border-white/10 text-white focus:border-[#6a38c2] focus:ring-1 focus:ring-[#6a38c2] placeholder:text-slate-600 rounded-xl transition-all" 
+                        placeholder="E.g., I love building web apps, working in visual design, or I am looking to transition from QA to development..."
+                    ></textarea>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="window.location.href = 'assessment.html';" class="btn btn-ghost border border-white/10 hover:bg-white/5 flex-1 rounded-xl">
+                        Skip
+                    </button>
+                    <button onclick="submitAdditionalInfo()" class="btn btn-primary bg-gradient-to-r from-[#6a38c2] to-[#fa6021] border-none flex-1 text-white font-bold rounded-xl shadow-lg transition-all">
+                        Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full-page Loader -->
+    <div id="loader" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 hidden">
+      <div class="flex flex-col items-center gap-4">
+        <span class="loading loading-spinner loading-lg text-[#fa6021]"></span>
+        <p class="text-white font-semibold text-sm">Saving details...</p>
+      </div>
+    </div>
+
+    <footer class="footer bg-black/35 backdrop-blur-md text-slate-400 border-t border-white/5 p-6 relative z-10 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <aside class="flex items-center gap-2">
+        <a href="#" class="logo text-lg font-bold">Career<span class="text-[#fa6021]">C🧭mpass</span></a>
+        <p class="text-xs">| Designed & Developed by Pooja Wanjare</p>
+      </aside>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = sessionStorage.getItem('username') || 'Explorer';
+            document.getElementById('greeting').innerText = `Tell Us More, ${username}`;
+        });
+
+        function submitAdditionalInfo() {
+            const additionalInfo = document.getElementById('additionalInfo').value.trim();
+            const loader = document.getElementById('loader');
+            
+            loader.classList.remove('hidden');
+            
+            const sessionId = sessionStorage.getItem('session_id') || 'default';
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Here is some info the user shared about their career hopes/interests: ${additionalInfo || 'None shared'}`,
+                    context: "You are required to store this additional info as context to guide your career analysis and suggestions.",
+                    is_context_setting: true,
+                    chat_mode: false,
+                    session_id: sessionId
+                })
+            }).then(() => {
+                loader.classList.add('hidden');
+                window.location.href = 'assessment.html';
+            }).catch((error) => {
+                console.error('Error:', error);
+                loader.classList.add('hidden');
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>
