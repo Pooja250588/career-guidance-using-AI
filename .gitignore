@@ -1,4 +1,8 @@
 venv
 ./venv
+.vscode/
 .env
 __pycache__
+node_modules/
+uploaded-images/
+backend/uploaded-images/
